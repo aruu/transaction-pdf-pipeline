@@ -1,10 +1,13 @@
-from extractors.base import Extractor
-from extractors.extractor_c import ExtractorC
+from collections.abc import Callable
 
-EXTRACTOR_MAPPING: dict[str, type[Extractor]] = {
+import pandas as pd
+
+from extractors.extractor_c import extract_transactions_c
+
+EXTRACTOR_REGISTRY: dict[str, Callable[[list[str]], pd.DataFrame]] = {
     # "ExtractorA": ExtractorA,
     # "ExtractorB": ExtractorB,
-    "ExtractorC": ExtractorC,
+    "C": extract_transactions_c,
     # "ExtractorD": ExtractorD,
     # "ExtractorE": ExtractorE,
 }

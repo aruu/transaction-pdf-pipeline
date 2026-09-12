@@ -10,7 +10,7 @@ import gspread
 import pandas as pd
 
 from config import get_config
-from extractors import EXTRACTOR_MAPPING
+from extractors import EXTRACTOR_REGISTRY
 from tbl import TblCsv, TblGoogleSheets
 
 logging.basicConfig(level=logging.INFO)
@@ -38,23 +38,21 @@ def extract_transactions(row: pd.Series) -> str:
     config = get_config()
     account_mapping = config["account_mapping"]
 
-    # Determine the Extractor class to use based on the account name
-    extractor = None
+    # Determine the extract function to use based on the account name
+    extract_transactions = None
     for mapping in account_mapping:
         # Use the first pattern that matches
         if re.search(mapping["pattern"], document_dict["account"]):
             logger.info(
                 f"Using extractor {mapping['extractor']} for account {document_dict['account']}"
             )
-            extractor = EXTRACTOR_MAPPING[mapping["extractor"]]
+            extract_transactions = EXTRACTOR_REGISTRY[mapping["extractor"]]
             break
-    if extractor is None:
-        return EXTRACT_SCHEMA.to_csv(index=False)
+    if extract_transactions is None:
         raise ValueError(f"No extractor found for account {document_dict['account']}")
 
-    return extractor.extract_transactions_csv(
-        pagetexts=list(pages.values())
-    ).strip()  # remove the trailing newline
+    # remove the trailing newline
+    return extract_transactions(list(pages.values())).to_csv(index=False).strip()
 
 
 def extract():

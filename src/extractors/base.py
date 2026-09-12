@@ -126,7 +126,7 @@ class Extractor(ABC):
         pass
 
     @classmethod
-    def extract_transactions_csv(cls, pagetexts: list[str]) -> str:
+    def extract_transactions_csv(cls, pagetexts: list[str]) -> pd.DataFrame:
         """Extract transactions data from the provided pagetexts.
 
         Args:
@@ -140,6 +140,8 @@ class Extractor(ABC):
         transactions = cls._pre_process_transactions(transactions, statement_date)
 
         # Select the output columns
-        return transactions[["transaction_date", "description", "amount"]].to_csv(
-            index=False
+        return (
+            transactions[["transaction_date", "description", "amount"]]
+            .sort_values("transaction_date", kind="stable")
+            .reset_index(drop=True)
         )

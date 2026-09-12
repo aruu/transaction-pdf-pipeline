@@ -1,6 +1,6 @@
 account_mapping:
   - pattern: "^Account Name 1"
-    extractor: ExtractorA
+    extractor: A
 
 description_mapping:
   "^TAX": "Taxes"

@@ -115,3 +115,6 @@ class ExtractorC(extract.Extractor):
             format="%b. %d, %Y",
         )
         return transactions
+
+
+extract_transactions_c = ExtractorC.extract_transactions_csv
