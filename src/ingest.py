@@ -11,12 +11,11 @@ import pandas as pd
 import pymupdf
 
 from config import get_config
+from const import INGEST_SCHEMA
 from tbl import TblCsv, TblGoogleSheets
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-INGEST_SCHEMA = pd.DataFrame(columns=["account", "document", "pages"])
 
 
 def extract_pdf_pages(doc_path: Path) -> str:

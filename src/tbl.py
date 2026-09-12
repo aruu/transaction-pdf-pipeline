@@ -28,7 +28,7 @@ class Tbl(ABC):
     connection lifecycle.
     """
 
-    def __init__(self, schema: pd.DataFrame) -> None:
+    def __init__(self, schema: list[str]) -> None:
         """
         Initialize the table object with the given configuration and schema.
 
@@ -36,9 +36,9 @@ class Tbl(ABC):
         the existing table is validated against the provided schema.
 
         Args:
-            schema (pd.DataFrame): A DataFrame representing the schema of the table.
+            schema (list[str]): A list of column names representing the schema of the table.
         """
-        self.schema_header = schema.columns.to_list()
+        self.schema = schema
         if self._table_exists():
             self._validate_table()
         else:
@@ -81,9 +81,9 @@ class Tbl(ABC):
         Returns None on success, raise an Exception otherwise.
         """
         df_header = df.columns.to_list()
-        if df_header != self.schema_header:
+        if df_header != self.schema:
             raise ValueError(
-                f"DataFrame header {df_header} does not match schema header {self.schema_header}."
+                f"DataFrame header {df_header} does not match schema {self.schema}."
             )
 
     def fetch_df(self) -> pd.DataFrame:
@@ -111,7 +111,7 @@ class TblCsv(Tbl):
     def __init__(
         self,
         config: dict,
-        schema: pd.DataFrame,
+        schema: list[str],
         default_output_dir: str,
         default_output_file: str,
     ):
@@ -126,7 +126,7 @@ class TblCsv(Tbl):
 
     def _create_table(self) -> None:
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
-        schema_csv = pd.DataFrame(columns=self.schema_header).to_csv(index=False)
+        schema_csv = pd.DataFrame(columns=self.schema).to_csv(index=False)
         with open(self.output_path, "x") as f:
             f.write(schema_csv)
         logger.info(
@@ -136,9 +136,9 @@ class TblCsv(Tbl):
     def _validate_table(self) -> None:
         # Validate that the structure matches the data being appended
         csv_header = pd.read_csv(self.output_path, nrows=0).columns.to_list()
-        if csv_header != self.schema_header:
+        if csv_header != self.schema:
             raise ValueError(
-                f"CSV header {csv_header} does not match schema header {self.schema_header}."
+                f"CSV header {csv_header} does not match schema {self.schema}."
             )
 
     def _fetch_df(self) -> pd.DataFrame:
@@ -152,7 +152,7 @@ class TblCsv(Tbl):
 class TblGoogleSheets(Tbl):
     """A table object that represents a Google Sheets worksheet."""
 
-    def __init__(self, config: dict, schema: pd.DataFrame, gc: gspread.Client):
+    def __init__(self, config: dict, schema: list[str], gc: gspread.Client):
         self.spreadsheet_name = config["spreadsheet_name"]
         self.worksheet_name = config["worksheet_name"]
         self.spreadsheet = gc.open(self.spreadsheet_name)
@@ -169,9 +169,9 @@ class TblGoogleSheets(Tbl):
 
     def _create_table(self) -> None:
         ws = self.spreadsheet.add_worksheet(
-            self.worksheet_name, rows=1, cols=len(self.schema_header)
+            self.worksheet_name, rows=1, cols=len(self.schema)
         )
-        ws.update([self.schema_header])
+        ws.update([self.schema])
         logger.info(
             f"Output Google Sheets worksheet {self.worksheet_name} in spreadsheet {self.spreadsheet_name} does not exist. It was created and initialized with the correct schema."
         )
@@ -181,9 +181,9 @@ class TblGoogleSheets(Tbl):
 
         # Validate that the structure matches the data being appended
         ws_header = ws.row_values(1)
-        if ws_header != self.schema_header:
+        if ws_header != self.schema:
             raise ValueError(
-                f"Worksheet header {ws_header} does not match schema header {self.schema_header}."
+                f"Worksheet header {ws_header} does not match schema {self.schema}."
             )
 
     def _fetch_df(self) -> pd.DataFrame:
