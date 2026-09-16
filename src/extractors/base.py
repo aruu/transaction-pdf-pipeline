@@ -80,15 +80,21 @@ def extract_raw_transactions(
     parse_table: Callable[[str], pd.DataFrame],
 ) -> pd.DataFrame:
 
-    transaction_tables = []
+    transactions_dfs = []
     # loop through all transaction pages
     for page in pages:
         # extract transaction tables (there may be multiple)
         tables = re.findall(table_regex, page)
+        if not tables:
+            raise ValueError("Expected at least one transaction table on each page")
+
         for table in tables:
             # parse each one into a DataFrame
-            transaction_tables.append(parse_table(table))
-    transactions_all = pd.concat(transaction_tables)
+            transactions_df = parse_table(table)
+            if transactions_df.empty:
+                raise ValueError("Parsed transaction table must not be empty")
+            transactions_dfs.append(transactions_df)
+    transactions_all = pd.concat(transactions_dfs)
 
     return transactions_all
 
