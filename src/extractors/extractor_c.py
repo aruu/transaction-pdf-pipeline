@@ -3,18 +3,15 @@ from datetime import datetime
 
 import pandas as pd
 
-import extractors.base as extract
-
-PAGE_TYPE_REGEXES = {
-    "Summary of your account": extract.PAGE_TYPE_SUMMARY,
-    "Transactions since your last statement": extract.PAGE_TYPE_TRANSACTIONS,
-}
-STATEMENT_DATE_REGEX = "Statement date\n(.*)\n"
-STATEMENT_DATE_FORMAT = "%b. %d, %Y"
-TABLETEXT_REGEX = r"(TRANS\nDATE\n(?s:.)*?)(?:\(continued on next page\)|Subtotal for )"
+from extractors.base import (
+    END_OF_ROW,
+    END_OF_ROW_TOKEN,
+    PageType,
+    construct_extract_transactions,
+)
 
 
-def parse_transaction_table_c(tabletext: str) -> pd.DataFrame:
+def parse_table_c(tabletext: str) -> pd.DataFrame:
     # Split the input text into lines - these can be treated as input into a state machine
     lines = tabletext.splitlines()
 
@@ -59,10 +56,10 @@ def parse_transaction_table_c(tabletext: str) -> pd.DataFrame:
                     buffer["description"] += " " + " ".join(lines.pop(0).split())
             case "amount":
                 buffer["amount"] = lines.pop(0)
-                state = extract.END_OF_ROW
+                state = END_OF_ROW
                 # Need a placeholder token to process the end of the row
-                lines.insert(0, extract.END_OF_ROW_TOKEN)
-            case _ if state == extract.END_OF_ROW:
+                lines.insert(0, END_OF_ROW_TOKEN)
+            case _ if state == END_OF_ROW:
                 transactions.append(buffer.copy())
                 buffer = {}
                 state = initial_state
@@ -71,42 +68,52 @@ def parse_transaction_table_c(tabletext: str) -> pd.DataFrame:
     return pd.DataFrame(transactions)
 
 
-def pre_process_transactions_c(
-    transactions: pd.DataFrame, statement_date: datetime
+def process_transactions_c(
+    transactions: pd.DataFrame,
+    statement_date: datetime,
 ) -> pd.DataFrame:
-
-    transactions["amount"] = (
-        transactions["amount"]
-        .str.replace(",", "")
-        .apply(
-            lambda x: (
-                "-" + x.replace("\xa0CR", "").strip() if "\xa0CR" in x else x.strip()
+    return transactions.rename(
+        columns={
+            "amount": "amount_raw",
+            "transaction_date": "transaction_date_raw",
+        }
+    ).assign(
+        # normalize the serialized amount, stripping separators and marking CR (credit) entries as negative
+        amount=lambda df: (
+            df["amount_raw"]
+            .str.replace(",", "")
+            .apply(
+                lambda x: (
+                    "-" + x.replace("\xa0CR", "").strip()
+                    if "\xa0CR" in x
+                    else x.strip()
+                )
             )
-        )
+        ),
+        # January statements can include December transactions from the previous year
+        transaction_year=lambda df: df["transaction_date_raw"].map(
+            lambda x: (
+                statement_date.year - 1
+                if statement_date.month == 1 and "Dec." in str(x)
+                else statement_date.year
+            )
+        ),
+        # build a single datetime column using the inferred transaction year
+        transaction_date=lambda df: pd.to_datetime(
+            df["transaction_date_raw"] + ", " + df["transaction_year"].astype(str),
+            format="%b. %d, %Y",
+        ),
     )
 
-    # Determine the year from the statement date
-    transactions["transaction_date_year"] = statement_date.year
-    if statement_date.month == 1:
-        transactions.loc[
-            transactions["transaction_date"].apply(lambda x: "Dec." in x),
-            "transaction_date_year",
-        ] -= 1
 
-    transactions["transaction_date"] = pd.to_datetime(
-        transactions["transaction_date"]
-        + ", "
-        + transactions["transaction_date_year"].astype(str),
-        format="%b. %d, %Y",
-    )
-    return transactions
-
-
-extract_transactions_c = extract.construct_extract_transactions(
-    page_type_regexes=PAGE_TYPE_REGEXES,
-    statement_date_regex=STATEMENT_DATE_REGEX,
-    statement_date_format=STATEMENT_DATE_FORMAT,
-    tabletext_regex=TABLETEXT_REGEX,
-    parse_transaction_table=parse_transaction_table_c,
-    pre_process_transactions=pre_process_transactions_c,
+extract_transactions_c = construct_extract_transactions(
+    page_type_regexes={
+        "Summary of your account": PageType.SUMMARY,
+        "Transactions since your last statement": PageType.TRANSACTIONS,
+    },
+    statement_date_regex="Statement date\n(.*)\n",
+    statement_date_format="%b. %d, %Y",
+    table_regex=r"(TRANS\nDATE\n(?s:.)*?)(?:\(continued on next page\)|Subtotal for )",
+    parse_table=parse_table_c,
+    process_transactions=process_transactions_c,
 )
