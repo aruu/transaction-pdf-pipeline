@@ -16,14 +16,25 @@ We assume that for closed accounts or historical data, past PDFs are easier to a
 
 - Python
 - ETL methodologies (staging, transformation, enrichment as separate phases)
+- OOP design patterns - extractors and Tbl are both Template Patterns (extractors are implemented purely functionally)
+
+## TODO
+
+- [x] finalize extractor design
+- [ ] make test case for extractor C
+- [ ] set up uv
+- [ ] set up opencode
+- [ ] migrate other extractors over
+- [ ] categorization
+
 
 ## Future
 
-Building on the idea of ETL, this could be coordinated through Airflow or dbt.
-data quality monitoring
-package into a docker container to run more easily, as a self-hosted app (parameters through volume mounts and env files)
-UI for easier tagging management
-reducing logic into state machines
-have a good input yaml format for state machines
-test code coverage
-swap to uv
+- [ ] Building on the idea of ETL, this could be coordinated through Airflow or dbt.
+- [ ] data quality monitoring
+- [ ] package into a docker container to run more easily, as a self-hosted app (parameters through volume mounts and env files)
+- [ ] UI for easier tagging management
+- [ ] reducing logic into state machines
+- [ ] have a good input yaml format for state machines
+- [ ] test code coverage
+- [ ] swap to uv
