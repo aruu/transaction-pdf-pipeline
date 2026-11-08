@@ -9,10 +9,10 @@ from typing import Any
 import gspread
 import pandas as pd
 
-from config import get_config
-from const import EXTRACT_SCHEMA, INGEST_SCHEMA
-from extractors import EXTRACTOR_REGISTRY
-from tbl import TblCsv, TblGoogleSheets
+from txn_pipeline.config import get_config
+from txn_pipeline.const import EXTRACT_SCHEMA, INGEST_SCHEMA
+from txn_pipeline.extractors import EXTRACTOR_REGISTRY
+from txn_pipeline.tbl import TblCsv, TblGoogleSheets
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

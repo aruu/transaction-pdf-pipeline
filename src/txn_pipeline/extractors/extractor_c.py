@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from extractors.base import (
+from txn_pipeline.extractors.base import (
     END_OF_ROW,
     END_OF_ROW_TOKEN,
     PageType,
