@@ -18,6 +18,10 @@ We assume that for closed accounts or historical data, past PDFs are easier to a
 - ETL methodologies (staging, transformation, enrichment as separate phases)
 - OOP design patterns - extractors and Tbl are both Template Patterns (extractors are implemented purely functionally)
 
+## Tests
+
+Installing with `pip install -e .` is currently required in order to run tests.
+
 ## TODO
 
 - [x] finalize extractor design
