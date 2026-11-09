@@ -25,7 +25,7 @@ Installing with `pip install -e .` is currently required in order to run tests.
 ## TODO
 
 - [x] finalize extractor design
-- [ ] make test case for extractor C
+- [x] make test case for extractor C
 - [ ] set up uv
 - [ ] set up opencode
 - [ ] migrate other extractors over
