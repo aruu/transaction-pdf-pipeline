@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 import pandas as pd
 
-from extractors.extractor_c import extract_transactions_c
+from txn_pipeline.extractors.extractor_c import extract_transactions_c
 
 EXTRACTOR_REGISTRY: dict[str, Callable[[list[str]], pd.DataFrame]] = {
     # "ExtractorA": ExtractorA,

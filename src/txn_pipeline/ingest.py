@@ -10,9 +10,9 @@ import gspread
 import pandas as pd
 import pymupdf
 
-from config import get_config
-from const import INGEST_SCHEMA
-from tbl import TblCsv, TblGoogleSheets
+from txn_pipeline.config import get_config
+from txn_pipeline.const import INGEST_SCHEMA
+from txn_pipeline.tbl import TblCsv, TblGoogleSheets
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
