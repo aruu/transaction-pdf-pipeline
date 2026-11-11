@@ -2,7 +2,7 @@
 
 ## Philosophy
 
-The goal of this project is first of all to be a place to practice and learn how to use technologies. This means some things may be designed poorly, which is fine as the point is to go through the exercise, not reach the end goal as quickly as possible (thus development on this may go very slowly). As well, some things may be solved in a roundabout convoluted way or be overkill - again the main goal is to create scenarios to practice skills, not maximize efficiency.
+The goal of this project is first of all to be a place to practice and learn how to use technologies. This means some things may be designed poorly, which is fine as the point is to go through the exercise, not reach the end goal as quickly as possible (thus development on this may go very slowly). As well, some things may be solved in a roundabout convoluted way or be overkill - again the main goal is to create scenarios to practice skills, not maximize efficiency. AI is used in an assistive way but every line is reviewed and considered, and only added if it fits the design in mind - no pattern or design decisions are left up to AI to decide.
 
 With that said, let's get onto the project.
 
