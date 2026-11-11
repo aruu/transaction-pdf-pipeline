@@ -2,7 +2,7 @@
 
 ## Philosophy
 
-The goal of this project is first of all to be a place to practice and learn how to use technologies. This means some things may be designed poorly, which is fine as the point is to go through the exercise, not reach the end goal as quickly as possible (thus development on this may go very slowly). As well, some things may be solved in a roundabout convoluted way or be overkill - again the main goal is to create scenarios to practice skills, not maximize efficiency.
+The goal of this project is first of all to be a place to practice and learn how to use technologies. This means some things may be designed poorly, which is fine as the point is to go through the exercise, not reach the end goal as quickly as possible (thus development on this may go very slowly). As well, some things may be solved in a roundabout convoluted way or be overkill - again the main goal is to create scenarios to practice skills, not maximize efficiency. AI is used in an assistive way but every line is reviewed and considered, and only added if it fits the design in mind - no pattern or design decisions are left up to AI to decide.
 
 With that said, let's get onto the project.
 
@@ -16,14 +16,29 @@ We assume that for closed accounts or historical data, past PDFs are easier to a
 
 - Python
 - ETL methodologies (staging, transformation, enrichment as separate phases)
+- OOP design patterns - extractors and Tbl are both Template Patterns (extractors are implemented purely functionally)
+
+## Tests
+
+Installing with `pip install -e .` is currently required in order to run tests.
+
+## TODO
+
+- [x] finalize extractor design
+- [x] make test case for extractor C
+- [ ] set up uv
+- [ ] set up opencode
+- [ ] migrate other extractors over
+- [ ] categorization
+
 
 ## Future
 
-Building on the idea of ETL, this could be coordinated through Airflow or dbt.
-data quality monitoring
-package into a docker container to run more easily, as a self-hosted app (parameters through volume mounts and env files)
-UI for easier tagging management
-reducing logic into state machines
-have a good input yaml format for state machines
-test code coverage
-swap to uv
+- [ ] Building on the idea of ETL, this could be coordinated through Airflow or dbt.
+- [ ] data quality monitoring
+- [ ] package into a docker container to run more easily, as a self-hosted app (parameters through volume mounts and env files)
+- [ ] UI for easier tagging management
+- [ ] reducing logic into state machines
+- [ ] have a good input yaml format for state machines
+- [ ] test code coverage
+- [ ] swap to uv
