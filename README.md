@@ -20,13 +20,18 @@ We assume that for closed accounts or historical data, past PDFs are easier to a
 
 ## Tests
 
-Installing with `pip install -e .` is currently required in order to run tests.
+Install the project and its development dependencies with `uv sync`, then run the
+tests with:
+
+```sh
+uv run pytest
+```
 
 ## TODO
 
 - [x] finalize extractor design
 - [x] make test case for extractor C
-- [ ] set up uv
+- [x] set up uv
 - [ ] set up opencode
 - [ ] migrate other extractors over
 - [ ] categorization
@@ -41,4 +46,4 @@ Installing with `pip install -e .` is currently required in order to run tests.
 - [ ] reducing logic into state machines
 - [ ] have a good input yaml format for state machines
 - [ ] test code coverage
-- [ ] swap to uv
+- [x] swap to uv

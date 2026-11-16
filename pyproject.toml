@@ -1,6 +1,11 @@
 [project]
 name = "transaction-pdf-pipeline"
 version = "0.0.1"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Kevin Thai", email = "kvn.thai@gmail.com" }
+]
 requires-python = ">=3.11"
 dependencies = [
     "gspread",
@@ -8,3 +13,16 @@ dependencies = [
     "PyMuPDF",
     "PyYAML",
 ]
+
+[dependency-groups]
+dev = [
+    "ipykernel",
+    "pytest",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.8,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "txn_pipeline"
