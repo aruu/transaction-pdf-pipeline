@@ -39,7 +39,7 @@ def make_output(output_body: str) -> str:
 
 
 @pytest.mark.parametrize(
-    "statement_date, transactions_body, output_body",
+    "statement_date, transactions_body, expected_output_body",
     [
         pytest.param(
             "Jan. 15, 2024",
@@ -99,8 +99,8 @@ def make_output(output_body: str) -> str:
 def test_extract_transactions_c(
     statement_date: str,
     transactions_body: str,
-    output_body: str,
+    expected_output_body: str,
 ):
     assert extract_transactions_c(make_pages(statement_date, transactions_body)).to_csv(
         index=False
-    ).strip() == make_output(output_body)
+    ).strip() == make_output(expected_output_body)
