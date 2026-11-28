@@ -71,7 +71,7 @@ def extract_statement_date(
         datetime: The statement date as a datetime object
     """
     statement_date_str = re.findall(statement_date_regex, summary_page)[0]
-    return datetime.strptime(statement_date_str, statement_date_format)  # noqa: DTZ007
+    return datetime.strptime(statement_date_str, statement_date_format)
 
 
 def extract_raw_transactions(
@@ -149,10 +149,6 @@ def construct_extract_transactions(
         transactions = process_transactions(transactions, statement_date)
 
         # select the output columns and sort
-        return (
-            transactions[["transaction_date", "description", "amount"]]
-            .sort_values("transaction_date", kind="stable")
-            .reset_index(drop=True)
-        )
+        return transactions[["transaction_date", "description", "amount"]]
 
     return extract_transactions
