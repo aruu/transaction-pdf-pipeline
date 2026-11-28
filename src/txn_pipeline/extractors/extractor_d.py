@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 import pandas as pd
@@ -48,17 +49,26 @@ def parse_table_d(tabletext: str) -> pd.DataFrame:
                     # Remove the first character since it is a space after the date
                     lines.insert(0, remaining_line[1:])
 
-                state = "transaction_description"
-            case "transaction_description":
-                # There seems to be a variable amount of spaces in the description - clean it up
-                description = " ".join(lines.pop(0).split())
-                # It can sometime start with "Ý ", so we need to remove this
-                description = description.removeprefix("Ý ")
-                buffer["transaction_description"] = description
+                state = "description"
+            case "description":
                 if mode == "payments":
+                    # All Payment transactions only have a one line description
+                    # There seems to be a variable amount of spaces in the description - clean it up
+                    buffer["description"] = " ".join(lines.pop(0).split())
                     state = "amount"
-                else:
-                    state = "category"
+                if mode == "charges_and_credits":
+                    # Charge descriptions can be multiline so we're not sure when it ends until the next line is a number (the amount)
+                    if re.match(r"^-?[\d,]*\.\d\d$", lines[1]):
+                        state = "category"
+                        continue
+                    # There seems to be a variable amount of spaces in the description - clean it up
+                    if "description" not in buffer:
+                        buffer["description"] = " ".join(lines.pop(0).split())
+                        # It can sometime start with "Q " or "Ý ", so we need to remove this
+                        buffer["description"] = buffer["description"].removeprefix("Q ")
+                        buffer["description"] = buffer["description"].removeprefix("Ý ")
+                    else:
+                        buffer["description"] += " " + " ".join(lines.pop(0).split())
             case "category":
                 buffer["category"] = lines.pop(0)
                 state = "amount"
@@ -83,7 +93,7 @@ def process_transactions_d(
     transactions: pd.DataFrame,
     statement_date: datetime,
 ) -> pd.DataFrame:
-    transactions["description"] = transactions["transaction_description"]
+    transactions["description"] = transactions["description"]
     transactions["amount"] = transactions["amount"].str.replace(",", "")
 
     # Determine the year from the statement date
@@ -110,7 +120,7 @@ extract_transactions_d = construct_extract_transactions(
     },
     statement_date_regex="Statement Date\n(.*)\n",
     statement_date_format="%B %d, %Y",
-    table_regex=r"(Trans\ndate\n[\s\S]*?\.\d\d\n)Total",
+    table_regex=r"(Trans\ndate\n[\s\S]*?\.\d\d\n)(?=Total|If you find an error or irregularity)",
     parse_table=parse_table_d,
     process_transactions=process_transactions_d,
 )

@@ -45,9 +45,11 @@ def make_pages(
             Amount($)
             Card number XXXX XXXX XXXX XXXX
             {charges_body}
-            Total for XXXX XXXX XXXX XXXX
-            $0.00
         """).format(charges_body=charges_body)
+        if charges_page_2_body:
+            transactions += "\nIf you find an error or irregularity"
+        else:
+            transactions += "\nTotal for XXXX XXXX XXXX XXXX\n$0.00"
     pages.append(transactions)
     if charges_page_2_body:
         pages.append(
@@ -166,6 +168,38 @@ def make_pages(
                 "2024-01-02,Merc hant 2 NAME,2.99\n"
             ),
             id="extra-spaces",
+        ),
+        pytest.param(
+            "January 15, 2024",
+            "",
+            (
+                "Jan 01\n"
+                "Jan 01\n"
+                "Website\n"
+                "12.95  USD @ 1.404633205**\n"
+                "Foreign Currency Transactions\n"
+                "18.19\n"
+                "Jan 02\n"
+                "Jan 02\n"
+                "Merchant\n"
+                "Category\n"
+                "1.99"
+            ),
+            "",
+            (
+                "transaction_date,description,amount\n"
+                "2024-01-01,Website 12.95 USD @ 1.404633205**,18.19\n"
+                "2024-01-02,Merchant,1.99\n"
+            ),
+            id="multiline-description",
+        ),
+        pytest.param(
+            "January 15, 2024",
+            "",
+            "Jan 01\nJan 01 Q Merchant\nCategory\n1.99",
+            "",
+            "transaction_date,description,amount\n2024-01-01,Merchant,1.99\n",
+            id="q-symbol-description-inline-with-posting-date",
         ),
     ],
 )
